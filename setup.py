@@ -49,7 +49,7 @@ try:
         install_requires = [
             "sphinx-me >= 0.1.2",
             "unidecode",
-            "django >= 1.11, < 3.1.99",
+            "django >= 1.11, < 3.3",
             "future <= 0.15.0",
         ],
         classifiers = [
@@ -58,11 +58,9 @@ try:
             "Intended Audience :: Developers",
             "Operating System :: OS Independent",
             "Programming Language :: Python",
-            "Programming Language :: Python :: 2.7",
             "Programming Language :: Python :: 3",
-            "Programming Language :: Python :: 3.4",
-            "Programming Language :: Python :: 3.5",
-            "Programming Language :: Python :: 3.6",
+            "Programming Language :: Python :: 3.7",
+            "Programming Language :: Python :: 3.8",
             "Framework :: Django",
             "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
             "Topic :: Internet :: WWW/HTTP :: Site Management",
