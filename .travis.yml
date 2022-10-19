@@ -11,4 +11,4 @@ matrix:
 install:
   - pip install $DJANGO_VERSION
   - pip install .
-script: ./forms_builder/example_project/manage.py test
+script: ./forms_builder/example_project/manage.py test forms_builder.forms

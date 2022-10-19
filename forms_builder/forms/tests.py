@@ -292,6 +292,7 @@ class Tests(TestCase):
             <div><a href='/forms/test/'>View form on site</a></div>
             <div><a href='/admin/forms/form/1/entries/'>Filter entries</a></div>
             <div><a href='/admin/forms/form/1/entries/show/'>View all entries</a></div>
-            <div><a href='/admin/forms/form/1/entries/export/'>Export all entries</a></div>
+            <div><a href='/admin/forms/form/1/entries/export/'>Export all entries</a>
+            </div>
         """,
         )
