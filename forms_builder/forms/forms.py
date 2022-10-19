@@ -3,13 +3,14 @@ from os.path import join, split
 from uuid import uuid4
 
 from django import forms
-import django
 from django.core.files.storage import default_storage
 from django.forms.widgets import SelectDateWidget
 from django.template import Template
 from django.urls import reverse
 from django.utils.safestring import mark_safe
+from django.utils.text import get_valid_filename
 from django.utils.translation import gettext_lazy as _
+
 from forms_builder.forms import fields
 from forms_builder.forms import settings
 from forms_builder.forms.models import FormEntry, FieldEntry
@@ -229,7 +230,8 @@ class FormForForm(forms.ModelForm):
             field_key = field.slug
             value = self.cleaned_data[field_key]
             if value and self.fields[field_key].widget.needs_multipart_form:
-                value = fs.save(join("forms", str(uuid4()), value.name), value)
+                filename = get_valid_filename(value.name)
+                value = fs.save(join("forms", str(uuid4()), filename), value)
             if isinstance(value, list):
                 value = ", ".join([v.strip() for v in value])
             if field.id in entry_fields:
@@ -240,11 +242,7 @@ class FormForForm(forms.ModelForm):
                 new = {"entry": entry, "field_id": field.id, "value": value}
                 new_entry_fields.append(self.field_entry_model(**new))
         if new_entry_fields:
-            if django.VERSION >= (1, 4, 0):
-                self.field_entry_model.objects.bulk_create(new_entry_fields)
-            else:
-                for field_entry in new_entry_fields:
-                    field_entry.save()
+            self.field_entry_model.objects.bulk_create(new_entry_fields)
         return entry
 
     def email_to(self):

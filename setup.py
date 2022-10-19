@@ -14,7 +14,7 @@ for e in exclude:
     if e.endswith(".py"):
         try:
             os.remove("%sc" % e)
-        except:
+        except Exception:
             pass
     try:
         with open(e, "r") as f:
@@ -30,7 +30,7 @@ if sys.argv[:2] == ["setup.py", "bdist_wheel"]:
     # as part of the build, which is unexpected.
     try:
         rmtree("build")
-    except:
+    except Exception:
         pass
 
 try:
@@ -78,5 +78,5 @@ finally:
                     f.write(data)
                 os.chown(e, stat.st_uid, stat.st_gid)
                 os.chmod(e, stat.st_mode)
-            except:
+            except Exception:
                 pass
