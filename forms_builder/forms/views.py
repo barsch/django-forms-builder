@@ -8,11 +8,12 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.template import RequestContext
 from django.urls import reverse
 from django.views.generic.base import TemplateView
+
 from forms_builder.forms.forms import FormForForm
 from forms_builder.forms.models import Form
 from forms_builder.forms.settings import EMAIL_FAIL_SILENTLY
 from forms_builder.forms.signals import form_invalid, form_valid
-from forms_builder.forms.utils import split_choices, send_mail_template
+from forms_builder.forms.utils import split_choices, send_mail_template, is_ajax
 
 
 class FormDetail(TemplateView):
@@ -52,9 +53,7 @@ class FormDetail(TemplateView):
             entry = form_for_form.save()
             form_valid.send(sender=request, form=form_for_form, entry=entry)
             self.send_emails(request, form_for_form, form, entry, attachments)
-            # XXX: is_ajax() is deprecated since Django 3.1, removed in Django 4.0
-            # https://docs.djangoproject.com/en/3.1/releases/3.1/#id2
-            if not self.request.is_ajax():
+            if not is_ajax(self.request):
                 return redirect(
                     form.redirect_url
                     or reverse("form_sent", kwargs={"slug": form.slug})
@@ -63,9 +62,7 @@ class FormDetail(TemplateView):
         return self.render_to_response(context)
 
     def render_to_response(self, context, **kwargs):
-        # XXX: is_ajax() is deprecated since Django 3.1, removed in Django 4.0
-        # https://docs.djangoproject.com/en/3.1/releases/3.1/#id2
-        if self.request.method == "POST" and self.request.is_ajax():
+        if self.request.method == "POST" and is_ajax(self.request):
             json_context = json.dumps(
                 {
                     "errors": context["form_for_form"].errors,

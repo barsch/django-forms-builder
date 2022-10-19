@@ -6,6 +6,16 @@ from django.template.loader import render_to_string
 from django.utils.timezone import now  # @UnusedImport
 
 
+def is_ajax(request):
+    """
+    This utility function is used, as `request.is_ajax()` is deprecated.
+
+    This implements the previous functionality. Note that you need to
+    attach this header manually if using fetch.
+    """
+    return request.META.get("HTTP_X_REQUESTED_WITH") == "XMLHttpRequest"
+
+
 def unique_slug(manager, slug_field, slug):
     """
     Ensure slug is unique for the given manager, appending a digit
