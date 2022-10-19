@@ -41,7 +41,9 @@ class Migration(migrations.Migration):
                 (
                     "choices",
                     models.CharField(
-                        help_text="Comma separated options where applicable. If an option itself contains commas, surround the option starting with the `character and ending with the ` character.",
+                        help_text="Comma separated options where applicable. If an "
+                        + "option itself contains commas, surround the option starting "
+                        + "with the `character and ending with the ` character.",
                         max_length=1000,
                         verbose_name="Choices",
                         blank=True,
@@ -133,7 +135,8 @@ class Migration(migrations.Migration):
                 (
                     "redirect_url",
                     models.CharField(
-                        help_text="An alternate URL to redirect to after form submission",
+                        help_text="An alternate URL to redirect to after form "
+                        + "submission",
                         max_length=200,
                         null=True,
                         verbose_name="Redirect url",
@@ -151,7 +154,8 @@ class Migration(migrations.Migration):
                 (
                     "publish_date",
                     models.DateTimeField(
-                        help_text="With published selected, won't be shown until this time",
+                        help_text="With published selected, won't be shown until this "
+                        + "time",
                         null=True,
                         verbose_name="Published from",
                         blank=True,
@@ -160,7 +164,8 @@ class Migration(migrations.Migration):
                 (
                     "expiry_date",
                     models.DateTimeField(
-                        help_text="With published selected, won't be shown after this time",
+                        help_text="With published selected, won't be shown after this "
+                        + "time",
                         null=True,
                         verbose_name="Expires on",
                         blank=True,
@@ -178,7 +183,8 @@ class Migration(migrations.Migration):
                     "send_email",
                     models.BooleanField(
                         default=True,
-                        help_text="If checked, the person entering the form will be sent an email",
+                        help_text="If checked, the person entering the form will be "
+                        + "sent an email",
                         verbose_name="Send email",
                     ),
                 ),
