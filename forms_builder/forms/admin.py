@@ -102,6 +102,7 @@ class FormAdmin(admin.ModelAdmin):
     search_fields = ("title", "intro", "response", "email_from", "email_copies")
     radio_fields = {"status": admin.HORIZONTAL}
     fieldsets = form_admin_fieldsets
+    save_as = True
 
     def get_queryset(self, request):
         """
