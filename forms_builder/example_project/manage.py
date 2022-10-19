@@ -2,7 +2,7 @@
 import os
 import sys
 
-from .settings import PROJECT_ROOT, PROJECT_DIRNAME
+from settings import PROJECT_ROOT, PROJECT_DIRNAME
 
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../.."))

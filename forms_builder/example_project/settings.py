@@ -1,4 +1,5 @@
-import os, sys
+import os
+import sys
 
 
 DEBUG = True
@@ -7,13 +8,14 @@ PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 PROJECT_DIRNAME = PROJECT_ROOT.split(os.sep)[-1]
 STATIC_URL = "/static/"
 STATIC_ROOT = os.path.join(PROJECT_ROOT, STATIC_URL.strip("/"))
-MEDIA_URL = STATIC_URL + "media/"
+MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(PROJECT_ROOT, *MEDIA_URL.strip("/").split("/"))
 ADMIN_MEDIA_PREFIX = STATIC_URL + "admin/"
 ROOT_URLCONF = "%s.urls" % PROJECT_DIRNAME
 TEMPLATE_DIRS = (os.path.join(PROJECT_ROOT, "templates"),)
 SECRET_KEY = "asdfa4wtW#$Gse4aGdfs"
 ADMINS = ()
+DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
 
 MANAGERS = ADMINS
