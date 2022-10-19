@@ -4,13 +4,15 @@ from io import BytesIO, StringIO
 from mimetypes import guess_type
 from os.path import join
 
+from django import forms
 from django.contrib import admin
 from django.core.files.storage import FileSystemStorage
-from django.db.models import Count
+from django.db.models import Count, CharField
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse, path
 from django.utils.translation import ngettext, gettext_lazy as _
+
 from forms_builder.forms.forms import EntriesForm
 from forms_builder.forms.models import Form, Field, FormEntry, FieldEntry
 from forms_builder.forms.settings import CSV_DELIMITER, UPLOAD_ROOT
@@ -79,6 +81,9 @@ if USE_SITES:
 class FieldAdmin(admin.TabularInline):
     model = Field
     exclude = ("slug",)
+    formfield_overrides = {
+        CharField: {"widget": forms.widgets.Textarea({"cols": "30", "rows": "4"})},
+    }
 
 
 class FormAdmin(admin.ModelAdmin):
