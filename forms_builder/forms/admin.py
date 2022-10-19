@@ -86,6 +86,7 @@ class FieldAdmin(admin.TabularInline):
     }
 
 
+@admin.register(Form)
 class FormAdmin(admin.ModelAdmin):
     formentry_model = FormEntry
     fieldentry_model = FieldEntry
@@ -101,11 +102,24 @@ class FormAdmin(admin.ModelAdmin):
         "admin_links",
     )
     list_display_links = ("title",)
-    list_editable = ("status", "email_copies", "publish_date", "expiry_date")
+    list_editable = (
+        "status",
+        "email_copies",
+        "publish_date",
+        "expiry_date",
+    )
     list_filter = ("status",)
     filter_horizontal = form_admin_filter_horizontal
-    search_fields = ("title", "intro", "response", "email_from", "email_copies")
-    radio_fields = {"status": admin.HORIZONTAL}
+    search_fields = (
+        "title",
+        "intro",
+        "response",
+        "email_from",
+        "email_copies",
+    )
+    radio_fields = {
+        "status": admin.HORIZONTAL,
+    }
     fieldsets = form_admin_fieldsets
     save_as = True
 
@@ -261,6 +275,3 @@ class FormAdmin(admin.ModelAdmin):
         response.write(f.read())
         f.close()
         return response
-
-
-admin.site.register(Form, FormAdmin)

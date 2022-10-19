@@ -1,9 +1,11 @@
+from django.contrib import admin
 from django.contrib.sites.models import Site
 from django.db import models
 from django.db.models import Q
 from django.urls import reverse
 from django.utils.html import format_html_join
 from django.utils.translation import gettext_lazy as _
+
 from forms_builder.forms import fields
 from forms_builder.forms import settings
 from forms_builder.forms.utils import now, slugify, unique_slug
@@ -153,6 +155,7 @@ class AbstractForm(models.Model):
     def get_absolute_url(self):
         return reverse("form_detail", kwargs={"slug": self.slug})
 
+    @admin.display(description="")
     def admin_links(self):
         kw = {"args": (self.id,)}
         return format_html_join(
@@ -165,9 +168,6 @@ class AbstractForm(models.Model):
                 (_("Export all entries"), reverse("admin:form_entries_export", **kw)),
             ),
         )
-
-    admin_links.allow_tags = True
-    admin_links.short_description = ""
 
 
 class FieldManager(models.Manager):
