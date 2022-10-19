@@ -37,7 +37,7 @@ class BuiltFormNode(template.Node):
 
 
 @register.tag
-def render_built_form(parser, token):
+def render_built_form(parser, token):  # @UnusedVariable
     """
     render_build_form takes one argument in one of the following formats:
 
@@ -55,6 +55,5 @@ def render_built_form(parser, token):
         if name not in ("form", "id", "slug"):
             raise ValueError
     except ValueError:
-        e = ()
         raise template.TemplateSyntaxError(render_built_form.__doc__)
     return BuiltFormNode(name, value)

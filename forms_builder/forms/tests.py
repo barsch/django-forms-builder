@@ -62,9 +62,15 @@ class Tests(TestCase):
         Test that each of the signals are sent.
         """
         events = ["valid", "invalid"]
-        invalid = lambda **kwargs: events.remove("invalid")
+
+        def invalid(**kwargs):  # @UnusedVariable
+            return events.remove("invalid")
+
         form_invalid.connect(invalid)
-        valid = lambda **kwargs: events.remove("valid")
+
+        def valid(**kwargs):  # @UnusedVariable
+            events.remove("valid")
+
         form_valid.connect(valid)
         form = Form.objects.create(title="Signals", status=STATUS_PUBLISHED)
         if USE_SITES:
@@ -88,8 +94,8 @@ class Tests(TestCase):
         context = RequestContext(request, {"form": form})
         template = "{%% load forms_builder_tags %%}{%% render_built_form %s %%}"
         formats = ("form", "form=form", "id=form.id", "slug=form.slug")
-        for format in formats:
-            t = Template(template % format).render(context)
+        for f in formats:
+            t = Template(template % f).render(context)
             self.assertTrue(form.get_absolute_url(), t)
 
     def test_optional_filefield(self):

@@ -9,7 +9,7 @@ from django.core.files.storage import FileSystemStorage
 from django.db.models import Count
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
-from django.urls import reverse, re_path
+from django.urls import reverse, path
 from django.utils.translation import ngettext, gettext_lazy as _
 from forms_builder.forms.forms import EntriesForm
 from forms_builder.forms.models import Form, Field, FormEntry, FieldEntry
@@ -117,25 +117,25 @@ class FormAdmin(admin.ModelAdmin):
         """
         urls = super(FormAdmin, self).get_urls()
         extra_urls = [
-            re_path(
-                r"^(?P<form_id>\d+)/entries/$",
+            path(
+                "<form_id>/entries/",
                 self.admin_site.admin_view(self.entries_view),
                 name="form_entries",
             ),
-            re_path(
-                r"^(?P<form_id>\d+)/entries/show/$",
+            path(
+                "<form_id>/entries/show/",
                 self.admin_site.admin_view(self.entries_view),
                 {"show": True},
                 name="form_entries_show",
             ),
-            re_path(
-                r"^(?P<form_id>\d+)/entries/export/$",
+            path(
+                "<form_id>/entries/export/",
                 self.admin_site.admin_view(self.entries_view),
                 {"export": True},
                 name="form_entries_export",
             ),
-            re_path(
-                r"^file/(?P<field_entry_id>\d+)/$",
+            path(
+                "file/<field_entry_id>)/",
                 self.admin_site.admin_view(self.file_view),
                 name="form_file",
             ),
@@ -176,9 +176,13 @@ class FormAdmin(admin.ModelAdmin):
                     queue = BytesIO()
                     delimiter = bytes(CSV_DELIMITER, encoding="utf-8")
                     csv = writer(queue, delimiter=delimiter)
-                    writerow = lambda row: csv.writerow(
-                        [c.encode("utf-8") if hasattr(c, "encode") else c for c in row]
-                    )
+
+                    def writerow(row):
+                        return [
+                            c.encode("utf-8") if hasattr(c, "encode") else c
+                            for c in row
+                        ]
+
                 writerow(entries_form.columns())
                 for row in entries_form.rows(csv=True):
                     writerow(row)
@@ -213,7 +217,9 @@ class FormAdmin(admin.ModelAdmin):
                         from django.contrib.messages import info
                     except ImportError:
 
-                        def info(request, message, fail_silently=True):
+                        def info(
+                            request, message, fail_silently=True  # @UnusedVariable
+                        ):
                             request.user.message_set.create(message=message)
 
                     entries = self.formentry_model.objects.filter(id__in=selected)
@@ -236,7 +242,7 @@ class FormAdmin(admin.ModelAdmin):
         }
         return render(request, template, context)
 
-    def file_view(self, request, field_entry_id):
+    def file_view(self, request, field_entry_id):  # @UnusedVariable
         """
         Output the file for the requested field entry.
         """

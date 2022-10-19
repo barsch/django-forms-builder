@@ -25,7 +25,7 @@ class FormDetail(TemplateView):
         context["form"] = get_object_or_404(published, slug=kwargs["slug"])
         return context
 
-    def get(self, request, *args, **kwargs):
+    def get(self, request, *args, **kwargs):  # @UnusedVariable
         context = self.get_context_data(**kwargs)
         login_required = context["form"].login_required
         if login_required and not request.user.is_authenticated:
@@ -34,7 +34,7 @@ class FormDetail(TemplateView):
             return redirect("%s?%s=%s" % bits)
         return self.render_to_response(context)
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):  # @UnusedVariable
         published = Form.objects.published(for_user=request.user)
         form = get_object_or_404(published, slug=kwargs["slug"])
         form_for_form = FormForForm(

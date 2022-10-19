@@ -194,9 +194,9 @@ class FormForForm(forms.ModelForm):
 
             # Add identifying CSS classes to the field.
             css_class = field_class.__name__.lower()
-            # Do not add the 'required' field to the CheckboxSelectMultiple because it will
-            # mean that all checkboxes have to be checked instead of the usual use case of
-            # "at least one".
+            # Do not add the 'required' field to the CheckboxSelectMultiple because it
+            # will mean that all checkboxes have to be checked instead of the usual use
+            # case of "at least one".
             if field.required and (field_widget != forms.CheckboxSelectMultiple):
                 css_class += " required"
                 if settings.USE_HTML5:
@@ -214,7 +214,7 @@ class FormForForm(forms.ModelForm):
                 text = field.placeholder_text
                 self.fields[field_key].widget.attrs["placeholder"] = text
 
-    def save(self, **kwargs):
+    def save(self, **kwargs):  # @UnusedVariable
         """
         Get/create a FormEntry instance and assign submitted values to
         related FieldEntry instances for each form field.
