@@ -1,11 +1,8 @@
-from __future__ import unicode_literals
-
-from django.core.mail import EmailMultiAlternatives
-from django.template.defaultfilters import slugify as django_slugify
 from importlib import import_module
 
+from django.core.mail import EmailMultiAlternatives
+from django.template.defaultfilters import slugify
 from django.template.loader import render_to_string
-from unidecode import unidecode
 
 
 # Timezone support with fallback.
@@ -13,16 +10,8 @@ try:
     from django.utils.timezone import now
 except ImportError:
     from datetime import datetime
+
     now = datetime.now
-
-
-def slugify(s):
-    """
-    Translates unicode into closest possible ascii chars before
-    slugifying.
-    """
-    from future.builtins import str
-    return django_slugify(unidecode(str(s)))
 
 
 def unique_slug(manager, slug_field, slug):
@@ -39,7 +28,7 @@ def unique_slug(manager, slug_field, slug):
                 slug = slug.rsplit("-", 1)[0]
             # We need to keep the slug length under the slug fields max length. We need to
             # account for the length that is added by adding a random integer and `-`.
-            slug = "%s-%s" % (slug[:max_length - len(str(i)) - 1], i)
+            slug = "%s-%s" % (slug[: max_length - len(str(i)) - 1], i)
         if not manager.filter(**{slug_field: slug}):
             break
         i += 1
@@ -70,14 +59,24 @@ def import_attr(path):
     return getattr(import_module(module_path), attr_name)
 
 
-def send_mail_template(subject, template, from_email, recipient_list,
-                       fail_silently=False, attachments=None, context=None,
-                       connection=None, headers=None):
+def send_mail_template(
+    subject,
+    template,
+    from_email,
+    recipient_list,
+    fail_silently=False,
+    attachments=None,
+    context=None,
+    connection=None,
+    headers=None,
+):
     context = context or {}
-    recipient_list = [recipient_list] if isinstance(recipient_list, str) else recipient_list
+    recipient_list = (
+        [recipient_list] if isinstance(recipient_list, str) else recipient_list
+    )
 
-    body = render_to_string('email_extras/{}.{}'.format(template, 'txt'), context)
-    html_body = render_to_string('email_extras/{}.{}'.format(template, 'html'), context)
+    body = render_to_string("email_extras/{}.{}".format(template, "txt"), context)
+    html_body = render_to_string("email_extras/{}.{}".format(template, "html"), context)
 
     email = EmailMultiAlternatives(
         subject=subject,
@@ -88,5 +87,5 @@ def send_mail_template(subject, template, from_email, recipient_list,
         attachments=attachments,
         headers=headers,
     )
-    email.attach_alternative(html_body, 'text/html')
+    email.attach_alternative(html_body, "text/html")
     email.send(fail_silently)

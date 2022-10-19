@@ -1,20 +1,13 @@
-from __future__ import unicode_literals
-
 import json
 from urllib.parse import quote
 
 from django.conf import settings
 from django.contrib.auth import REDIRECT_FIELD_NAME
-try:
-    from django.urls import reverse
-except ImportError:
-    # For Django 1.8 compatibility
-    from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template import RequestContext
+from django.urls import reverse
 from django.views.generic.base import TemplateView
-
 from forms_builder.forms.forms import FormForForm
 from forms_builder.forms.models import Form
 from forms_builder.forms.settings import EMAIL_FAIL_SILENTLY
@@ -44,9 +37,9 @@ class FormDetail(TemplateView):
     def post(self, request, *args, **kwargs):
         published = Form.objects.published(for_user=request.user)
         form = get_object_or_404(published, slug=kwargs["slug"])
-        form_for_form = FormForForm(form, RequestContext(request),
-                                    request.POST or None,
-                                    request.FILES or None)
+        form_for_form = FormForForm(
+            form, RequestContext(request), request.POST or None, request.FILES or None
+        )
         if not form_for_form.is_valid():
             form_invalid.send(sender=request, form=form_for_form)
         else:
@@ -62,8 +55,10 @@ class FormDetail(TemplateView):
             # XXX: is_ajax() is deprecated since Django 3.1, removed in Django 4.0
             # https://docs.djangoproject.com/en/3.1/releases/3.1/#id2
             if not self.request.is_ajax():
-                return redirect(form.redirect_url or
-                    reverse("form_sent", kwargs={"slug": form.slug}))
+                return redirect(
+                    form.redirect_url
+                    or reverse("form_sent", kwargs={"slug": form.slug})
+                )
         context = {"form": form, "form_for_form": form_for_form}
         return self.render_to_response(context)
 
@@ -71,14 +66,17 @@ class FormDetail(TemplateView):
         # XXX: is_ajax() is deprecated since Django 3.1, removed in Django 4.0
         # https://docs.djangoproject.com/en/3.1/releases/3.1/#id2
         if self.request.method == "POST" and self.request.is_ajax():
-            json_context = json.dumps({
-                "errors": context["form_for_form"].errors,
-                "form": context["form_for_form"].as_p(),
-                "message": context["form"].response,
-            })
+            json_context = json.dumps(
+                {
+                    "errors": context["form_for_form"].errors,
+                    "form": context["form_for_form"].as_p(),
+                    "message": context["form"].response,
+                }
+            )
             if context["form_for_form"].errors:
-                return HttpResponseBadRequest(json_context,
-                    content_type="application/json")
+                return HttpResponseBadRequest(
+                    json_context, content_type="application/json"
+                )
             return HttpResponse(json_context, content_type="application/json")
         return super(FormDetail, self).render_to_response(context, **kwargs)
 
@@ -100,19 +98,30 @@ class FormDetail(TemplateView):
         email_from = form.email_from or settings.DEFAULT_FROM_EMAIL
         email_to = form_for_form.email_to()
         if email_to and form.send_email:
-            send_mail_template(subject, "form_response", email_from,
-                               email_to, context=context,
-                               fail_silently=EMAIL_FAIL_SILENTLY)
+            send_mail_template(
+                subject,
+                "form_response",
+                email_from,
+                email_to,
+                context=context,
+                fail_silently=EMAIL_FAIL_SILENTLY,
+            )
         headers = None
         if email_to:
             headers = {"Reply-To": email_to}
         email_copies = split_choices(form.email_copies)
         if email_copies:
-            send_mail_template(subject, "form_response_copies", email_from,
-                               email_copies, context=context,
-                               attachments=attachments,
-                               fail_silently=EMAIL_FAIL_SILENTLY,
-                               headers=headers)
+            send_mail_template(
+                subject,
+                "form_response_copies",
+                email_from,
+                email_copies,
+                context=context,
+                attachments=attachments,
+                fail_silently=EMAIL_FAIL_SILENTLY,
+                headers=headers,
+            )
+
 
 form_detail = FormDetail.as_view()
 

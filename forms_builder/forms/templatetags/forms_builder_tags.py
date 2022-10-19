@@ -1,9 +1,5 @@
-from __future__ import unicode_literals
-from future.builtins import str
-
 from django import template
 from django.template.loader import get_template
-
 from forms_builder.forms.forms import FormForForm
 from forms_builder.forms.models import Form, AbstractForm
 
@@ -12,7 +8,6 @@ register = template.Library()
 
 
 class BuiltFormNode(template.Node):
-
     def __init__(self, name, value):
         self.name = name
         self.value = value
@@ -30,8 +25,9 @@ class BuiltFormNode(template.Node):
                 form = None
         else:
             form = template.Variable(self.value).resolve(context)
-        if (not issubclass(form.__class__, AbstractForm)
-                or not form.published(for_user=user)):
+        if not issubclass(form.__class__, AbstractForm) or not form.published(
+            for_user=user
+        ):
             return ""
         t = get_template("forms/includes/built_form.html")
         context["form"] = form

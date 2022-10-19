@@ -1,14 +1,7 @@
-from __future__ import unicode_literals
-
-from django.core.exceptions import ImproperlyConfigured
 from django import forms
-try:
-    from django.forms import SelectDateWidget
-except ImportError:
-    # For Django 1.8 compatibility
-    from django.forms.extras import SelectDateWidget
+from django.core.exceptions import ImproperlyConfigured
+from django.forms.widgets import SelectDateWidget
 from django.utils.translation import gettext_lazy as _
-
 from forms_builder.forms.settings import USE_HTML5, EXTRA_FIELDS, EXTRA_WIDGETS
 from forms_builder.forms.utils import html5_field, import_attr
 
@@ -85,14 +78,16 @@ MULTIPLE = (CHECKBOX_MULTIPLE, SELECT_MULTIPLE)
 
 # HTML5 Widgets
 if USE_HTML5:
-    WIDGETS.update({
-        DATE: html5_field("date", forms.DateInput),
-        DATE_TIME: html5_field("datetime", forms.DateTimeInput),
-        DOB: html5_field("date", forms.DateInput),
-        EMAIL: html5_field("email", forms.TextInput),
-        NUMBER: html5_field("number", forms.TextInput),
-        URL: html5_field("url", forms.TextInput),
-    })
+    WIDGETS.update(
+        {
+            DATE: html5_field("date", forms.DateInput),
+            DATE_TIME: html5_field("datetime", forms.DateTimeInput),
+            DOB: html5_field("date", forms.DateInput),
+            EMAIL: html5_field("email", forms.TextInput),
+            NUMBER: html5_field("number", forms.TextInput),
+            URL: html5_field("url", forms.TextInput),
+        }
+    )
 
 # Add any custom fields defined.
 for field_id, field_path, field_name in EXTRA_FIELDS:

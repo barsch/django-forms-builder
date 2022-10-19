@@ -1,20 +1,10 @@
-from __future__ import unicode_literals
-
 from django import VERSION as DJANGO_VERSION
 from django.contrib.sites.models import Site
-from django.utils.html import format_html_join
-
-try:
-    from django.urls import reverse
-except ImportError:
-    # For Django 1.8 compatibility
-    from django.core.urlresolvers import reverse
-
 from django.db import models
 from django.db.models import Q
+from django.urls import reverse
+from django.utils.html import format_html_join
 from django.utils.translation import gettext_lazy as _
-from future.builtins import str
-
 from forms_builder.forms import fields
 from forms_builder.forms import settings
 from forms_builder.forms.utils import now, slugify, unique_slug
@@ -32,6 +22,7 @@ class FormManager(models.Manager):
     """
     Only show published forms for non-staff users.
     """
+
     def published(self, for_user=None):
         if for_user is not None and for_user.is_staff:
             return self.all()
@@ -53,40 +44,65 @@ class FormManager(models.Manager):
 #                                                                    #
 ######################################################################
 
+
 class AbstractForm(models.Model):
     """
     A user-built form.
     """
 
-    sites = models.ManyToManyField(Site,
-        default=[settings.SITE_ID], related_name="%(app_label)s_%(class)s_forms")
+    sites = models.ManyToManyField(
+        Site, default=[settings.SITE_ID], related_name="%(app_label)s_%(class)s_forms"
+    )
     title = models.CharField(_("Title"), max_length=50)
-    slug = models.SlugField(_("Slug"), editable=settings.EDITABLE_SLUGS,
-        max_length=100, unique=True)
+    slug = models.SlugField(
+        _("Slug"), editable=settings.EDITABLE_SLUGS, max_length=100, unique=True
+    )
     intro = models.TextField(_("Intro"), blank=True)
-    button_text = models.CharField(_("Button text"), max_length=50,
-        default=_("Submit"))
+    button_text = models.CharField(_("Button text"), max_length=50, default=_("Submit"))
     response = models.TextField(_("Response"), blank=True)
-    redirect_url = models.CharField(_("Redirect url"), max_length=200,
-        null=True, blank=True,
-        help_text=_("An alternate URL to redirect to after form submission"))
-    status = models.IntegerField(_("Status"), choices=STATUS_CHOICES,
-        default=STATUS_PUBLISHED)
-    publish_date = models.DateTimeField(_("Published from"),
+    redirect_url = models.CharField(
+        _("Redirect url"),
+        max_length=200,
+        null=True,
+        blank=True,
+        help_text=_("An alternate URL to redirect to after form submission"),
+    )
+    status = models.IntegerField(
+        _("Status"), choices=STATUS_CHOICES, default=STATUS_PUBLISHED
+    )
+    publish_date = models.DateTimeField(
+        _("Published from"),
         help_text=_("With published selected, won't be shown until this time"),
-        blank=True, null=True)
-    expiry_date = models.DateTimeField(_("Expires on"),
+        blank=True,
+        null=True,
+    )
+    expiry_date = models.DateTimeField(
+        _("Expires on"),
         help_text=_("With published selected, won't be shown after this time"),
-        blank=True, null=True)
-    login_required = models.BooleanField(_("Login required"), default=False,
-        help_text=_("If checked, only logged in users can view the form"))
-    send_email = models.BooleanField(_("Send email"), default=True, help_text=
-        _("If checked, the person entering the form will be sent an email"))
-    email_from = models.EmailField(_("From address"), blank=True,
-        help_text=_("The address the email will be sent from"))
-    email_copies = models.CharField(_("Send copies to"), blank=True,
+        blank=True,
+        null=True,
+    )
+    login_required = models.BooleanField(
+        _("Login required"),
+        default=False,
+        help_text=_("If checked, only logged in users can view the form"),
+    )
+    send_email = models.BooleanField(
+        _("Send email"),
+        default=True,
+        help_text=_("If checked, the person entering the form will be sent an email"),
+    )
+    email_from = models.EmailField(
+        _("From address"),
+        blank=True,
+        help_text=_("The address the email will be sent from"),
+    )
+    email_copies = models.CharField(
+        _("Send copies to"),
+        blank=True,
         help_text=_("One or more email addresses, separated by commas"),
-        max_length=200)
+        max_length=200,
+    )
     email_subject = models.CharField(_("Subject"), max_length=200, blank=True)
     email_message = models.TextField(_("Message"), blank=True)
 
@@ -123,10 +139,7 @@ class AbstractForm(models.Model):
         publish_date = self.publish_date is None or self.publish_date <= now()
         expiry_date = self.expiry_date is None or self.expiry_date >= now()
         authenticated = for_user is not None and for_user.is_authenticated
-        if DJANGO_VERSION <= (1, 9):
-            # Django 1.8 compatibility, is_authenticated has to be called as a method.
-            authenticated = for_user is not None and for_user.is_authenticated()
-        login_required = (not self.login_required or authenticated)
+        login_required = not self.login_required or authenticated
         return status and publish_date and expiry_date and login_required
 
     def total_entries(self):
@@ -135,19 +148,25 @@ class AbstractForm(models.Model):
         with the number of entries.
         """
         return self.total_entries
+
     total_entries.admin_order_field = "total_entries"
 
     def get_absolute_url(self):
         return reverse("form_detail", kwargs={"slug": self.slug})
 
     def admin_links(self):
-        kw = {"args": (self.id, )}
-        return format_html_join("\n", "<div><a href='{1}'>{0}</a></div>", (
-            (_("View form on site"), self.get_absolute_url()),
-            (_("Filter entries"), reverse("admin:form_entries", **kw)),
-            (_("View all entries"), reverse("admin:form_entries_show", **kw)),
-            (_("Export all entries"), reverse("admin:form_entries_export", **kw)),
-        ))
+        kw = {"args": (self.id,)}
+        return format_html_join(
+            "\n",
+            "<div><a href='{1}'>{0}</a></div>",
+            (
+                (_("View form on site"), self.get_absolute_url()),
+                (_("Filter entries"), reverse("admin:form_entries", **kw)),
+                (_("View all entries"), reverse("admin:form_entries_show", **kw)),
+                (_("Export all entries"), reverse("admin:form_entries_export", **kw)),
+            ),
+        )
+
     admin_links.allow_tags = True
     admin_links.short_description = ""
 
@@ -156,6 +175,7 @@ class FieldManager(models.Manager):
     """
     Only show visible fields when displaying actual form..
     """
+
     def visible(self):
         return self.filter(visible=True)
 
@@ -166,21 +186,32 @@ class AbstractField(models.Model):
     """
 
     label = models.CharField(_("Label"), max_length=settings.LABEL_MAX_LENGTH)
-    slug = models.SlugField(_('Slug'), max_length=2000, blank=True,
-            default="")
+    slug = models.SlugField(_("Slug"), max_length=2000, blank=True, default="")
     field_type = models.IntegerField(_("Type"), choices=fields.NAMES)
     required = models.BooleanField(_("Required"), default=True)
     visible = models.BooleanField(_("Visible"), default=True)
-    choices = models.CharField(_("Choices"), max_length=settings.CHOICES_MAX_LENGTH, blank=True,
+    choices = models.CharField(
+        _("Choices"),
+        max_length=settings.CHOICES_MAX_LENGTH,
+        blank=True,
         help_text="Comma separated options where applicable. If an option "
-            "itself contains commas, surround the option starting with the %s"
-            "character and ending with the %s character." %
-                (settings.CHOICES_QUOTE, settings.CHOICES_UNQUOTE))
-    default = models.CharField(_("Default value"), blank=True,
-        max_length=settings.FIELD_MAX_LENGTH)
-    placeholder_text = models.CharField(_("Placeholder Text"), null=True,
-        blank=True, max_length=100, editable=settings.USE_HTML5)
-    help_text = models.CharField(_("Help text"), blank=True, max_length=settings.HELPTEXT_MAX_LENGTH)
+        "itself contains commas, surround the option starting with the %s"
+        "character and ending with the %s character."
+        % (settings.CHOICES_QUOTE, settings.CHOICES_UNQUOTE),
+    )
+    default = models.CharField(
+        _("Default value"), blank=True, max_length=settings.FIELD_MAX_LENGTH
+    )
+    placeholder_text = models.CharField(
+        _("Placeholder Text"),
+        null=True,
+        blank=True,
+        max_length=100,
+        editable=settings.USE_HTML5,
+    )
+    help_text = models.CharField(
+        _("Help text"), blank=True, max_length=settings.HELPTEXT_MAX_LENGTH
+    )
 
     objects = FieldManager()
 
@@ -242,8 +273,7 @@ class AbstractFieldEntry(models.Model):
     """
 
     field_id = models.IntegerField()
-    value = models.CharField(max_length=settings.FIELD_MAX_LENGTH,
-            null=True)
+    value = models.CharField(max_length=settings.FIELD_MAX_LENGTH, null=True)
 
     class Meta:
         verbose_name = _("Form field entry")
@@ -257,12 +287,15 @@ class AbstractFieldEntry(models.Model):
 #                                                 #
 ###################################################
 
+
 class FormEntry(AbstractFormEntry):
     form = models.ForeignKey("Form", related_name="entries", on_delete=models.CASCADE)
 
 
 class FieldEntry(AbstractFieldEntry):
-    entry = models.ForeignKey("FormEntry", related_name="fields", on_delete=models.CASCADE)
+    entry = models.ForeignKey(
+        "FormEntry", related_name="fields", on_delete=models.CASCADE
+    )
 
 
 class Form(AbstractForm):
@@ -284,7 +317,7 @@ class Field(AbstractField):
         if self.order is None:
             self.order = self.form.fields.count()
         if not self.slug:
-            slug = slugify(self).replace('-', '_')
+            slug = slugify(self).replace("-", "_")
             self.slug = unique_slug(self.form.fields, "slug", slug)
         super(Field, self).save(*args, **kwargs)
 

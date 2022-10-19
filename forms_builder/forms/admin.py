@@ -1,35 +1,28 @@
-from __future__ import unicode_literals
-from future.builtins import bytes, open
-
 from csv import writer
-from mimetypes import guess_type
-from os.path import join
 from datetime import datetime
 from io import BytesIO, StringIO
+from mimetypes import guess_type
+from os.path import join
 
 from django.contrib import admin
 from django.core.files.storage import FileSystemStorage
-try:
-    from django.urls import reverse, re_path
-except ImportError:
-    # For django 1.8 compatiblity
-    from django.conf.urls import url as re_path
-    from django.core.urlresolvers import reverse
 from django.db.models import Count
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
+from django.urls import reverse, re_path
 from django.utils.translation import ngettext, gettext_lazy as _
-
 from forms_builder.forms.forms import EntriesForm
 from forms_builder.forms.models import Form, Field, FormEntry, FieldEntry
 from forms_builder.forms.settings import CSV_DELIMITER, UPLOAD_ROOT
 from forms_builder.forms.settings import USE_SITES, EDITABLE_SLUGS
 from forms_builder.forms.utils import now, slugify
 
+
 try:
     import xlwt
+
     XLWT_INSTALLED = True
-    XLWT_DATETIME_STYLE = xlwt.easyxf(num_format_str='MM/DD/YYYY HH:MM:SS')
+    XLWT_DATETIME_STYLE = xlwt.easyxf(num_format_str="MM/DD/YYYY HH:MM:SS")
 except ImportError:
     XLWT_INSTALLED = False
 
@@ -37,25 +30,55 @@ except ImportError:
 fs = FileSystemStorage(location=UPLOAD_ROOT)
 form_admin_filter_horizontal = ()
 form_admin_fieldsets = [
-    (None, {"fields": ("title", ("status", "login_required",),
-        ("publish_date", "expiry_date",),
-        "intro", "button_text", "response", "redirect_url")}),
-    (_("Email"), {"fields": ("send_email", "email_from", "email_copies",
-        "email_subject", "email_message")}),]
+    (
+        None,
+        {
+            "fields": (
+                "title",
+                (
+                    "status",
+                    "login_required",
+                ),
+                (
+                    "publish_date",
+                    "expiry_date",
+                ),
+                "intro",
+                "button_text",
+                "response",
+                "redirect_url",
+            )
+        },
+    ),
+    (
+        _("Email"),
+        {
+            "fields": (
+                "send_email",
+                "email_from",
+                "email_copies",
+                "email_subject",
+                "email_message",
+            )
+        },
+    ),
+]
 
 if EDITABLE_SLUGS:
     form_admin_fieldsets.append(
-            (_("Slug"), {"fields": ("slug",), "classes": ("collapse",)}))
+        (_("Slug"), {"fields": ("slug",), "classes": ("collapse",)})
+    )
 
 if USE_SITES:
-    form_admin_fieldsets.append((_("Sites"), {"fields": ("sites",),
-        "classes": ("collapse",)}))
+    form_admin_fieldsets.append(
+        (_("Sites"), {"fields": ("sites",), "classes": ("collapse",)})
+    )
     form_admin_filter_horizontal = ("sites",)
 
 
 class FieldAdmin(admin.TabularInline):
     model = Field
-    exclude = ('slug', )
+    exclude = ("slug",)
 
 
 class FormAdmin(admin.ModelAdmin):
@@ -63,14 +86,20 @@ class FormAdmin(admin.ModelAdmin):
     fieldentry_model = FieldEntry
 
     inlines = (FieldAdmin,)
-    list_display = ("title", "status", "email_copies", "publish_date",
-                    "expiry_date", "total_entries", "admin_links")
+    list_display = (
+        "title",
+        "status",
+        "email_copies",
+        "publish_date",
+        "expiry_date",
+        "total_entries",
+        "admin_links",
+    )
     list_display_links = ("title",)
     list_editable = ("status", "email_copies", "publish_date", "expiry_date")
     list_filter = ("status",)
     filter_horizontal = form_admin_filter_horizontal
-    search_fields = ("title", "intro", "response", "email_from",
-                     "email_copies")
+    search_fields = ("title", "intro", "response", "email_from", "email_copies")
     radio_fields = {"status": admin.HORIZONTAL}
     fieldsets = form_admin_fieldsets
 
@@ -88,23 +117,34 @@ class FormAdmin(admin.ModelAdmin):
         """
         urls = super(FormAdmin, self).get_urls()
         extra_urls = [
-            re_path(r"^(?P<form_id>\d+)/entries/$",
+            re_path(
+                r"^(?P<form_id>\d+)/entries/$",
                 self.admin_site.admin_view(self.entries_view),
-                name="form_entries"),
-            re_path(r"^(?P<form_id>\d+)/entries/show/$",
+                name="form_entries",
+            ),
+            re_path(
+                r"^(?P<form_id>\d+)/entries/show/$",
                 self.admin_site.admin_view(self.entries_view),
-                {"show": True}, name="form_entries_show"),
-            re_path(r"^(?P<form_id>\d+)/entries/export/$",
+                {"show": True},
+                name="form_entries_show",
+            ),
+            re_path(
+                r"^(?P<form_id>\d+)/entries/export/$",
                 self.admin_site.admin_view(self.entries_view),
-                {"export": True}, name="form_entries_export"),
-            re_path(r"^file/(?P<field_entry_id>\d+)/$",
+                {"export": True},
+                name="form_entries_export",
+            ),
+            re_path(
+                r"^file/(?P<field_entry_id>\d+)/$",
                 self.admin_site.admin_view(self.file_view),
-                name="form_file"),
+                name="form_file",
+            ),
         ]
         return extra_urls + urls
 
-    def entries_view(self, request, form_id, show=False, export=False,
-                     export_xls=False):
+    def entries_view(
+        self, request, form_id, show=False, export=False, export_xls=False
+    ):
         """
         Displays the form entries in a HTML table with option to
         export as CSV file.
@@ -136,8 +176,9 @@ class FormAdmin(admin.ModelAdmin):
                     queue = BytesIO()
                     delimiter = bytes(CSV_DELIMITER, encoding="utf-8")
                     csv = writer(queue, delimiter=delimiter)
-                    writerow = lambda row: csv.writerow([c.encode("utf-8")
-                        if hasattr(c, "encode") else c for c in row])
+                    writerow = lambda row: csv.writerow(
+                        [c.encode("utf-8") if hasattr(c, "encode") else c for c in row]
+                    )
                 writerow(entries_form.columns())
                 for row in entries_form.rows(csv=True):
                     writerow(row)
@@ -150,7 +191,7 @@ class FormAdmin(admin.ModelAdmin):
                 attachment = "attachment; filename=%s" % fname
                 response["Content-Disposition"] = attachment
                 queue = BytesIO()
-                workbook = xlwt.Workbook(encoding='utf8')
+                workbook = xlwt.Workbook(encoding="utf8")
                 sheet = workbook.add_sheet(form.title[:31])
                 for c, col in enumerate(entries_form.columns()):
                     sheet.write(0, c, col)
@@ -171,21 +212,28 @@ class FormAdmin(admin.ModelAdmin):
                     try:
                         from django.contrib.messages import info
                     except ImportError:
+
                         def info(request, message, fail_silently=True):
                             request.user.message_set.create(message=message)
+
                     entries = self.formentry_model.objects.filter(id__in=selected)
                     count = entries.count()
                     if count > 0:
                         entries.delete()
-                        message = ngettext("1 entry deleted",
-                                           "%(count)s entries deleted", count)
+                        message = ngettext(
+                            "1 entry deleted", "%(count)s entries deleted", count
+                        )
                         info(request, message % {"count": count})
         template = "admin/forms/entries.html"
-        context = {"title": _("View Entries"), "entries_form": entries_form,
-                   "opts": self.model._meta, "original": form,
-                   "can_delete_entries": can_delete_entries,
-                   "submitted": submitted,
-                   "xlwt_installed": XLWT_INSTALLED}
+        context = {
+            "title": _("View Entries"),
+            "entries_form": entries_form,
+            "opts": self.model._meta,
+            "original": form,
+            "can_delete_entries": can_delete_entries,
+            "submitted": submitted,
+            "xlwt_installed": XLWT_INSTALLED,
+        }
         return render(request, template, context)
 
     def file_view(self, request, field_entry_id):
