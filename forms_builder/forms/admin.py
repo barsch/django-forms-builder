@@ -3,6 +3,7 @@ from datetime import datetime
 from io import BytesIO, StringIO
 from mimetypes import guess_type
 from os.path import join
+import re
 
 from django import forms
 from django.contrib import admin
@@ -12,7 +13,6 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse, path
 from django.utils.translation import ngettext, gettext_lazy as _
-
 from forms_builder.forms.forms import EntriesForm
 from forms_builder.forms.models import Form, Field, FormEntry, FieldEntry
 from forms_builder.forms.settings import CSV_DELIMITER, UPLOAD_ROOT
@@ -216,7 +216,8 @@ class FormAdmin(admin.ModelAdmin):
                 response["Content-Disposition"] = attachment
                 queue = BytesIO()
                 workbook = xlwt.Workbook(encoding="utf8")
-                sheet = workbook.add_sheet(form.title[:31])
+                title = re.sub(r"[^\w\s]", "", form.title)
+                sheet = workbook.add_sheet(title[:31])
                 for c, col in enumerate(entries_form.columns()):
                     sheet.write(0, c, col)
                 for r, row in enumerate(entries_form.rows(csv=True)):
