@@ -67,9 +67,7 @@ form_admin_fieldsets = [
 ]
 
 if EDITABLE_SLUGS:
-    form_admin_fieldsets.append(
-        (_("Slug"), {"fields": ("slug",), "classes": ("collapse",)})
-    )
+    form_admin_fieldsets.append((_("Slug"), {"fields": ("slug",)}))
 
 if USE_SITES:
     form_admin_fieldsets.append(
