@@ -53,7 +53,7 @@ try:
         install_requires=[
             "sphinx-me >= 0.1.2",
             "unidecode",
-            "django >= 3.2, < 4.0",
+            "django >= 3.2, < 4.3",
         ],
         classifiers=[
             "Development Status :: 5 - Production/Stable",
