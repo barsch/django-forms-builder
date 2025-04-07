@@ -53,7 +53,7 @@ try:
         install_requires=[
             "sphinx-me >= 0.1.2",
             "unidecode",
-            "django >= 3.2, < 4.3",
+            "django >= 5.2",
         ],
         classifiers=[
             "Development Status :: 5 - Production/Stable",
@@ -62,8 +62,6 @@ try:
             "Operating System :: OS Independent",
             "Programming Language :: Python",
             "Programming Language :: Python :: 3",
-            "Programming Language :: Python :: 3.7",
-            "Programming Language :: Python :: 3.8",
             "Framework :: Django",
             "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
             "Topic :: Internet :: WWW/HTTP :: Site Management",
